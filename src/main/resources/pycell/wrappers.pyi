@@ -1,0 +1,13 @@
+from typing import Any
+
+class GoogleMapClusterWrapper:
+    def do_output(self, latlngjson: Any, centerlat: Any, centerlon: Any, zoom: Any, width: Any, height: Any): ...
+
+class LeafletClusterWrapper:
+    def do_output(self, addrpts: Any, centerlat: Any, centerlon: Any, zoom: Any, width: Any, height: Any): ...
+
+class D3ChartWrapper:
+    def do_output(self, data: Any, charttype: Any, width: Any, height: Any, title: str = ..., subtitle: str = ..., legendtitle: str = ..., xlabel: str = ..., ylabel: str = ...): ...
+
+class TetrisWrapper:
+    def do_output(self) -> None: ...
