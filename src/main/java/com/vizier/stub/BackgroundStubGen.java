@@ -109,7 +109,7 @@ public class BackgroundStubGen implements Runnable {
 			File sourceDirectory = new File("src" + File.separator + "main" + File.separator + "resources" + File.separator + "pycell");
 			File destinationDirectory = new File("out"+ File.separator + "pycell");
 			FileUtils.copyDirectory(sourceDirectory, destinationDirectory);
-		}catch (IOException e){ote
+		}catch (IOException e){
 			System.out.println("Exception while generating VizierDB stubs");
 		}
 	}
