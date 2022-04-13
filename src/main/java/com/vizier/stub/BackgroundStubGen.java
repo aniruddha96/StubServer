@@ -19,6 +19,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
+import org.apache.commons.io.FileUtils;
 import org.springframework.util.FileSystemUtils;
 
 public class BackgroundStubGen implements Runnable {
@@ -49,7 +50,7 @@ public class BackgroundStubGen implements Runnable {
 			}
 			
 		}
-
+		createVizierDBStubs();
 		Path source = Paths.get("out");
 		try {
 			createTarGzipFolder(source);
@@ -100,6 +101,16 @@ public class BackgroundStubGen implements Runnable {
 			});
 
 			tOut.finish();
+		}
+	}
+
+	private void createVizierDBStubs() {
+		try {
+			File sourceDirectory = new File("src" + File.separator + "main" + File.separator + "resources" + File.separator + "pycell");
+			File destinationDirectory = new File("out"+ File.separator + "pycell");
+			FileUtils.copyDirectory(sourceDirectory, destinationDirectory);
+		}catch (IOException e){
+			System.out.println("Exception while generating VizierDB stubs");
 		}
 	}
 
