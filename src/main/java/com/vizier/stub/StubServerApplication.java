@@ -1,6 +1,7 @@
 package com.vizier.stub;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -15,14 +16,17 @@ public class StubServerApplication {
 		// SpringApplication.run(StubServerApplication.class, args);
 
 		SpringApplication application = new SpringApplication(StubServerApplication.class);
-		TypeshedHandler.getTypeshedList();
 		addInitHooks(application);
 		application.run(args);
 	}
 	
-	static void addInitHooks(SpringApplication application) {
-		
-		ProcessBuilder processBuilder = new ProcessBuilder();
+	static void addInitHooks(SpringApplication application) {	
+		ProcessBuilder processBuilder = new ProcessBuilder();	
+		File file = new File("out");
+		if(!file.exists()){
+            file.mkdirs();
+        }
+		TypeshedHandler.getTypeshedList();
 		processBuilder.command("pip", "freeze");
 		ServerState state = new ServerState();
 		try {
@@ -44,8 +48,7 @@ public class StubServerApplication {
 					state.installedPackages.add(nameAndLocation[0]);
 				}
 			}
-			Thread t = new Thread(new BackgroundStubGen(state));
-			t.start();
+			new BackgroundStubGen(state).runStubGen();
 			System.out.println(state.installedPackages);
 		} catch (IOException e) {
 			e.printStackTrace();

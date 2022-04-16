@@ -1,11 +1,8 @@
 package com.vizier.stub;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -15,14 +12,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.commons.io.FileUtils;
-import org.springframework.util.FileSystemUtils;
 
-public class BackgroundStubGen implements Runnable {
+public class BackgroundStubGen {
 
 	ServerState state;
 
@@ -31,24 +29,27 @@ public class BackgroundStubGen implements Runnable {
 		this.state = state;
 	}
 
-	@Override
-	public void run() {
+	public void runStubGen() {
+
 		long start = System.currentTimeMillis();
+		getListOfAlreadyGenerated();
 		for (String s : state.installedPackages) {
-			
-			String sLC = s.toLowerCase();
-			
-			if(TypeshedHandler.getTypeshedList().contains(sLC)) {
-				System.out.println(s+" from typeshed");
-				fetchPreBuildStubs("types-"+sLC);
+			if(state.alreadyGenerated.contains(s)) {
+				System.out.println("Already generatd for : "+s);
+				continue;
 			}
-			else if(s.toLowerCase().equals("pandas")) {
+			String sLC = s.toLowerCase();
+
+			if (TypeshedHandler.getTypeshedList().contains(sLC)) {
+				System.out.println(s + " from typeshed");
+				fetchPreBuildStubs(sLC);
+			} else if (s.toLowerCase().equals("pandas")) {
 				fetchPreBuildStubs("pandas-stubs");
-			}else {
-				System.out.println("generating for "+s);
+			} else {
+				System.out.println("generating for " + s);
 				createStubsFor(s);
 			}
-			
+
 		}
 		createVizierDBStubs();
 		Path source = Paths.get("out");
@@ -59,9 +60,17 @@ public class BackgroundStubGen implements Runnable {
 			e.printStackTrace();
 		}
 		System.out.println("done");
-		System.out.println("total time : "+(System.currentTimeMillis()-start));
+		System.out.println("total time : " + (System.currentTimeMillis() - start));
 
+	}
 
+	private void getListOfAlreadyGenerated() {
+		ArrayList<File> alreadyGenerated = new ArrayList<File>(Arrays.asList(new File("out/").listFiles(File::isDirectory)));
+		for(File f : alreadyGenerated) {
+			this.state.alreadyGenerated.add(f.getName());
+		}
+		
+		
 	}
 
 	private void createTarGzipFolder(Path source) throws IOException {
@@ -85,7 +94,7 @@ public class BackgroundStubGen implements Runnable {
 						tOut.putArchiveEntry(tarEntry);
 						Files.copy(file, tOut);
 						tOut.closeArchiveEntry();
-						//System.out.printf("file : %s%n", file);
+						// System.out.printf("file : %s%n", file);
 					} catch (IOException e) {
 						System.err.printf("Unable to tar.gz : %s%n%s%n", file, e);
 					}
@@ -106,10 +115,11 @@ public class BackgroundStubGen implements Runnable {
 
 	private void createVizierDBStubs() {
 		try {
-			File sourceDirectory = new File("src" + File.separator + "main" + File.separator + "resources" + File.separator + "pycell");
-			File destinationDirectory = new File("out"+ File.separator + "pycell");
+			File sourceDirectory = new File(
+					"src" + File.separator + "main" + File.separator + "resources" + File.separator + "pycell");
+			File destinationDirectory = new File("out" + File.separator + "pycell");
 			FileUtils.copyDirectory(sourceDirectory, destinationDirectory);
-		}catch (IOException e){
+		} catch (IOException e) {
 			System.out.println("Exception while generating VizierDB stubs");
 		}
 	}
@@ -126,16 +136,17 @@ public class BackgroundStubGen implements Runnable {
 				output.append(line + "\n");
 			}
 			int exitVal = process.waitFor();
-			//System.out.println(output);
+			// System.out.println(output);
 		} catch (IOException | InterruptedException e) {
-			System.out.println("Exception while generating stubs for "+libname);
-		}	
+			System.out.println("Exception while generating stubs for " + libname);
+		}
 	}
-	
+
 	private void fetchPreBuildStubs(String packageName) {
 		try {
+			String name = "types-" + packageName;
 			ProcessBuilder processBuilder = new ProcessBuilder();
-			processBuilder.command("pip","install","--target=out",packageName);
+			processBuilder.command("pip", "install", "--target=out", name);
 			Process process = processBuilder.start();
 			StringBuilder output = new StringBuilder();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -143,11 +154,12 @@ public class BackgroundStubGen implements Runnable {
 			while ((line = reader.readLine()) != null) {
 				output.append(line + "\n");
 			}
-			
+			File sourceFile = new File("out"+ File.separator +packageName+"-stubs");
+			File destFile = new File("out"+ File.separator +packageName);
+			sourceFile.renameTo(destFile);
 		} catch (IOException e) {
-			System.out.println("Exception while generating stubs for "+packageName);
+			System.out.println("Exception while generating stubs for " + packageName);
 		}
 	}
 
-	
 }
