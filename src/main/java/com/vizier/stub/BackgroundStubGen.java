@@ -116,7 +116,7 @@ public class BackgroundStubGen {
 	private void createVizierDBStubs() {
 		try {
 			File sourceDirectory = new File(
-					"src" + File.separator + "main" + File.separator + "resources" + File.separator + "pycell");
+					"classes" + File.separator+"pycell");
 			File destinationDirectory = new File("out" + File.separator + "pycell");
 			FileUtils.copyDirectory(sourceDirectory, destinationDirectory);
 		} catch (IOException e) {
