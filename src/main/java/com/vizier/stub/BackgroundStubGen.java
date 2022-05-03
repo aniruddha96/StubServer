@@ -136,6 +136,9 @@ public class BackgroundStubGen {
 				output.append(line + "\n");
 			}
 			int exitVal = process.waitFor();
+			processBuilder.command("stubgen", "-m", libname);
+			process = processBuilder.start();
+			int exitValm = process.waitFor();
 			// System.out.println(output);
 		} catch (IOException | InterruptedException e) {
 			System.out.println("Exception while generating stubs for " + libname);
