@@ -115,9 +115,10 @@ public class BackgroundStubGen {
 
 	private void createVizierDBStubs() {
 		try {
-			File sourceDirectory = new File(
-					"classes" + File.separator+"pycell");
-			File destinationDirectory = new File("out" + File.separator + "pycell");
+			Path source = Paths.get("target"+ File.separator+"classes" + File.separator+"pycell");
+			File sourceDirectory = source.toFile();
+			Path destination = Paths.get("out"+ File.separator + "pycell");
+			File destinationDirectory = destination.toFile();
 			FileUtils.copyDirectory(sourceDirectory, destinationDirectory);
 		} catch (IOException e) {
 			System.out.println("Exception while generating VizierDB stubs");
