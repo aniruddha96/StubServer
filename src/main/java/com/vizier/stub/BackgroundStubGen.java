@@ -33,6 +33,7 @@ public class BackgroundStubGen {
 
 		long start = System.currentTimeMillis();
 		getListOfAlreadyGenerated();
+		state.installedPackages.remove("typing_extensions");
 		for (String s : state.installedPackages) {
 			if(state.alreadyGenerated.contains(s)) {
 				System.out.println("Already generatd for : "+s);
