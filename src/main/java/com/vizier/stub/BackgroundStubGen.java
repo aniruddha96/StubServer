@@ -45,7 +45,7 @@ public class BackgroundStubGen {
 				System.out.println(s + " from typeshed");
 				fetchPreBuildStubs(sLC);
 			} else if (s.toLowerCase().equals("pandas")) {
-				fetchPreBuildStubs("pandas-stubs");
+				fetchPreBuiltPandasStubs();
 			} else {
 				System.out.println("generating for " + s);
 				createStubsFor(s);
@@ -164,6 +164,23 @@ public class BackgroundStubGen {
 			sourceFile.renameTo(destFile);
 		} catch (IOException e) {
 			System.out.println("Exception while generating stubs for " + packageName);
+		}
+	}
+	
+	private void fetchPreBuiltPandasStubs() {
+		try {
+			ProcessBuilder processBuilder = new ProcessBuilder();
+			processBuilder.command("pip", "install", "--target=out", "pandas-stubs");
+			Process process = processBuilder.start();
+			StringBuilder output = new StringBuilder();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			String line;
+			while ((line = reader.readLine()) != null) {
+				output.append(line + "\n");
+			}
+
+		} catch (IOException e) {
+			System.out.println("Exception while generating stubs for Pandas" );
 		}
 	}
 
