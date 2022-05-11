@@ -7,7 +7,7 @@ The server creates stubs([PEP 484](https://peps.python.org/pep-0484/)) for all p
 ## Prerequisites
 Python3, pip3 should be installed and accessible through commandline.
 mypy package for python should be installed.
-```stubgen``` command should be accessible through commandline directly.
+```stubgen``` command should be accessible through commandline directly. If it is not, install mypy globally using pip3.
 
 The server creates multiple files in the base directory of the repository, make sure the process has read and write access to the directory.
 
